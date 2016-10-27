@@ -1,5 +1,12 @@
 #include "Traversable.hh"
 
+namespace PureScript {
+  namespace symbol {
+    struct acc {};
+    struct fn {};
+  }
+}
+
 namespace Data_Traversable {
 
   using namespace PureScript;
@@ -18,13 +25,13 @@ namespace Data_Traversable {
                  const any::array& xs,
                  const T& buildFrom) -> any {
     if (currentLen == 0) {
-      return any::map{ { "acc", acc } };
+      return any::map<2>{{ { SYMBOL(acc), acc }, { nullptr, nullptr } }};
     } else {
       const auto last = xs[currentLen - 1];
       const auto fn = [=]() -> any {
         return go(buildFrom(last, acc), currentLen - 1, xs, buildFrom);
       };
-      return any::map{ { "fn", fn } };
+      return any::map<2>{{ { SYMBOL(fn), fn }, { nullptr, nullptr } }};
     }
   };
 
@@ -47,10 +54,10 @@ namespace Data_Traversable {
     };
 
     auto result = go(pure(any::array()), array.size(), array, buildFrom);
-    while (result.contains("fn")) {
-      result = result["fn"]();
+    while (result.contains(SYMBOL(fn))) {
+      result = result[SYMBOL(fn)]();
     }
-    return result["acc"];
+    return result[SYMBOL(acc)];
   }
 
 } // namespace Data_Traversable
