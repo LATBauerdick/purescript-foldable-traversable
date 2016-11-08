@@ -16,33 +16,28 @@ module Data.Foldable
   , elem
   , notElem
   , find
+  , findMap
   , maximum
   , maximumBy
   , minimum
   , minimumBy
   ) where
 
-import Control.Applicative (class Applicative, pure)
-import Control.Apply ((*>))
+import Prelude
+
 import Control.Plus (class Plus, alt, empty)
 
-import Data.BooleanAlgebra (class BooleanAlgebra, not)
-import Data.Eq (class Eq, (==))
-import Data.Function (id, flip, (<<<))
 import Data.Maybe (Maybe(..))
 import Data.Maybe.First (First(..))
 import Data.Maybe.Last (Last(..))
-import Data.Monoid (class Monoid, mempty, (<>))
+import Data.Monoid (class Monoid, mempty)
 import Data.Monoid.Additive (Additive(..))
-import Data.Monoid.Conj (Conj(..), runConj)
-import Data.Monoid.Disj (Disj(..), runDisj)
-import Data.Monoid.Dual (Dual(..), runDual)
-import Data.Monoid.Endo (Endo(..), runEndo)
+import Data.Monoid.Conj (Conj(..))
+import Data.Monoid.Disj (Disj(..))
+import Data.Monoid.Dual (Dual(..))
+import Data.Monoid.Endo (Endo(..))
 import Data.Monoid.Multiplicative (Multiplicative(..))
-import Data.Ord (class Ord, compare)
-import Data.Ordering (Ordering(..))
-import Data.Semiring (class Semiring, one, (*), zero, (+))
-import Data.Unit (Unit, unit)
+import Data.Newtype (alaF, unwrap)
 
 -- | `Foldable` represents data structures which can be _folded_.
 -- |
@@ -76,7 +71,7 @@ foldrDefault
   -> b
   -> f a
   -> b
-foldrDefault c u xs = runEndo (foldMap (Endo <<< c) xs) u
+foldrDefault c u xs = unwrap (foldMap (Endo <<< c) xs) u
 
 -- | A default implementation of `foldl` using `foldMap`.
 -- |
@@ -89,8 +84,7 @@ foldlDefault
    -> b
    -> f a
    -> b
-foldlDefault c u xs =
-  runEndo (runDual (foldMap (Dual <<< Endo <<< flip c) xs)) u
+foldlDefault c u xs = unwrap (unwrap (foldMap (Dual <<< Endo <<< flip c) xs)) u
 
 -- | A default implementation of `foldMap` using `foldr`.
 -- |
@@ -234,24 +228,24 @@ intercalate sep xs = (foldl go { init: true, acc: mempty } xs).acc
 -- | The conjunction of all the values in a data structure. When specialized
 -- | to `Boolean`, this function will test whether all of the values in a data
 -- | structure are `true`.
-and :: forall a f. (Foldable f, BooleanAlgebra a) => f a -> a
+and :: forall a f. (Foldable f, HeytingAlgebra a) => f a -> a
 and = all id
 
 -- | The disjunction of all the values in a data structure. When specialized
 -- | to `Boolean`, this function will test whether any of the values in a data
 -- | structure is `true`.
-or :: forall a f. (Foldable f, BooleanAlgebra a) => f a -> a
+or :: forall a f. (Foldable f, HeytingAlgebra a) => f a -> a
 or = any id
 
 -- | `all f` is the same as `and <<< map f`; map a function over the structure,
 -- | and then get the conjunction of the results.
-all :: forall a b f. (Foldable f, BooleanAlgebra b) => (a -> b) -> f a -> b
-all p = runConj <<< foldMap (Conj <<< p)
+all :: forall a b f. (Foldable f, HeytingAlgebra b) => (a -> b) -> f a -> b
+all p = alaF Conj foldMap p
 
 -- | `any f` is the same as `or <<< map f`; map a function over the structure,
 -- | and then get the disjunction of the results.
-any :: forall a b f. (Foldable f, BooleanAlgebra b) => (a -> b) -> f a -> b
-any p = runDisj <<< foldMap (Disj <<< p)
+any :: forall a b f. (Foldable f, HeytingAlgebra b) => (a -> b) -> f a -> b
+any p = alaF Disj foldMap p
 
 -- | Find the sum of the numeric values in a data structure.
 sum :: forall a f. (Foldable f, Semiring a) => f a -> a
@@ -274,6 +268,13 @@ find :: forall a f. Foldable f => (a -> Boolean) -> f a -> Maybe a
 find p = foldl go Nothing
   where
   go Nothing x | p x = Just x
+  go r _ = r
+
+-- | Try to find an element in a data structure which satisfies a predicate mapping.
+findMap :: forall a b f. Foldable f => (a -> Maybe b) -> f a -> Maybe b
+findMap p = foldl go Nothing
+  where
+  go Nothing x = p x
   go r _ = r
 
 -- | Find the largest element of a structure, according to its `Ord` instance.
