@@ -51,9 +51,9 @@ namespace Data_Traversable {
 
     auto result = go(pure(any::array()), array.size(), array, buildFrom);
     while (result.contains(symbol(fn))) {
-      result = result[symbol(fn)]();
+      result = map::get(symbol(fn), result)();
     }
-    return result[symbol(acc)];
+    return map::get(symbol(acc), result);
   }
 
 } // namespace Data_Traversable
