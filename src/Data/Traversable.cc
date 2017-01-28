@@ -1,7 +1,7 @@
 #include "Traversable.hh"
 
-define_symbol(acc);
-define_symbol(fn);
+DEFINE_SYMBOL(acc)
+DEFINE_SYMBOL(fn)
 
 namespace Data_Traversable {
 
@@ -21,13 +21,13 @@ namespace Data_Traversable {
                  const any::array& xs,
                  const T& buildFrom) -> any {
     if (currentLen == 0) {
-      return any::map<2>{{ { symbol(acc), acc }, { nullptr, nullptr } }};
+      return dict::make({ SYM(acc), acc });
     } else {
       const auto last = xs[currentLen - 1];
       const auto fn = [=]() -> any {
         return go(buildFrom(last, acc), currentLen - 1, xs, buildFrom);
       };
-      return any::map<2>{{ { symbol(fn), fn }, { nullptr, nullptr } }};
+      return dict::make({ SYM(fn), fn });
     }
   };
 
@@ -50,10 +50,10 @@ namespace Data_Traversable {
     };
 
     auto result = go(pure(any::array()), array.size(), array, buildFrom);
-    while (result.contains(symbol(fn))) {
-      result = map::get(symbol(fn), result)();
+    while (result.contains(SYM(fn))) {
+      result = dict::get(SYM(fn), result)();
     }
-    return map::get(symbol(acc), result);
+    return dict::get(SYM(acc), result);
   }
 
 } // namespace Data_Traversable
