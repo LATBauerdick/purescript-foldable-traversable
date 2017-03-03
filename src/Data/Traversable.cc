@@ -9,7 +9,7 @@ namespace Data_Traversable {
 
   static auto cons(const any& x) -> any {
     return [=](const any& xs) -> any {
-      any::array result(cast<any::array>(xs));
+      any::array result(static_cast<const any::array&>(xs));
       result.emplace_front(x);
       return result;
     };
