@@ -32,7 +32,7 @@ class (Bifunctor t, Bifoldable t) <= Bitraversable t where
 
 ltraverse
   :: forall t b c a f
-   . (Bitraversable t, Applicative f)
+   . Bitraversable t => Applicative f
   => (a -> f c)
   -> t a b
   -> f (t c b)
@@ -40,7 +40,7 @@ ltraverse f = bitraverse f pure
 
 rtraverse
   :: forall t b c a f
-   . (Bitraversable t, Applicative f)
+   . Bitraversable t => Applicative f
   => (b -> f c)
   -> t a b
   -> f (t a c)
@@ -49,7 +49,7 @@ rtraverse = bitraverse pure
 -- | A default implementation of `bitraverse` using `bisequence` and `bimap`.
 bitraverseDefault
   :: forall t f a b c d
-   . (Bitraversable t, Applicative f)
+   . Bitraversable t => Applicative f
   => (a -> f c)
   -> (b -> f d)
   -> t a b
@@ -59,7 +59,7 @@ bitraverseDefault f g t = bisequence (bimap f g t)
 -- | A default implementation of `bisequence` using `bitraverse`.
 bisequenceDefault
   :: forall t f a b
-   . (Bitraversable t, Applicative f)
+   . Bitraversable t => Applicative f
   => t (f a) (f b)
   -> f (t a b)
 bisequenceDefault t = bitraverse id id t
@@ -67,7 +67,7 @@ bisequenceDefault t = bitraverse id id t
 -- | Traverse a data structure, accumulating effects and results using an `Applicative` functor.
 bifor
   :: forall t f a b c d
-   . (Bitraversable t, Applicative f)
+   . Bitraversable t => Applicative f
   => t a b
   -> (a -> f c)
   -> (b -> f d)
@@ -76,7 +76,7 @@ bifor t f g = bitraverse f g t
 
 lfor
   :: forall t b c a f
-   . (Bitraversable t, Applicative f)
+   . Bitraversable t => Applicative f
   => t a b
   -> (a -> f c)
   -> f (t c b)
@@ -84,7 +84,7 @@ lfor t f = bitraverse f pure t
 
 rfor
   :: forall t b c a f
-   . (Bitraversable t, Applicative f)
+   . Bitraversable t => Applicative f
   => t a b
   -> (b -> f c)
   -> f (t a c)
