@@ -214,7 +214,7 @@ sequence_ :: forall a f m. Applicative m => Foldable f => f (m a) -> m Unit
 sequence_ = traverse_ id
 
 -- | Combines a collection of elements using the `Alt` operation.
-oneOf :: forall f g a. (Foldable f, Plus g) => f (g a) -> g a
+oneOf :: forall f g a. Foldable f => Plus g => f (g a) -> g a
 oneOf = foldr alt empty
 
 -- | Fold a data structure, accumulating values in some `Monoid`,
