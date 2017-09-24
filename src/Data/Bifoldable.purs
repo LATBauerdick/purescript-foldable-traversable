@@ -93,7 +93,7 @@ bifoldMapDefaultL f g p = bifoldl (\m a -> m <> f a) (\m b -> m <> g b) mempty p
 
 
 -- | Fold a data structure, accumulating values in a monoidal type.
-bifold :: forall t m. (Bifoldable t, Monoid m) => t m m -> m
+bifold :: forall t m. Bifoldable t => Monoid m => t m m -> m
 bifold = bifoldMap id id
 
 -- | Traverse a data structure, accumulating effects using an `Applicative` functor,
