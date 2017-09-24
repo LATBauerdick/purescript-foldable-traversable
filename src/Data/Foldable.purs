@@ -302,3 +302,15 @@ minimumBy cmp = foldl min' Nothing
   where
   min' Nothing x  = Just x
   min' (Just x) y = Just (if cmp x y == LT then x else y)
+
+-- | Test whether the structure is empty.
+-- | Optimized for structures that are similar to cons-lists, because there
+-- | is no general way to do better.
+null :: forall a f. Foldable f => f a -> Boolean
+null = foldr (\_ _ -> false) true
+
+-- | Returns the size/length of a finite structure.
+-- | Optimized for structures that are similar to cons-lists, because there
+-- | is no general way to do better.
+length :: forall a b f. Foldable f => Semiring b => f a -> b
+length = foldl (\c _ -> add one c) zero
