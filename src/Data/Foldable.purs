@@ -21,6 +21,9 @@ module Data.Foldable
   , maximumBy
   , minimum
   , minimumBy
+  , null
+  , length
+
   ) where
 
 import Prelude
