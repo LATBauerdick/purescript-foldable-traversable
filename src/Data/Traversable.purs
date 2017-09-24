@@ -128,7 +128,7 @@ instance traversableMultiplicative :: Traversable Multiplicative where
 -- | ```
 for
   :: forall a b m t
-   . (Applicative m, Traversable t)
+   . Applicative m => Traversable t
   => t a
   -> (a -> m b)
   -> m (t b)
